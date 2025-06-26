@@ -948,7 +948,7 @@ def live_chat_endpoint():
         ai_response = live_chat.generate_live_response(user_message, voice, conversation_id)
         
         # Generate speech
-        audio_bytes, error = live_chat.speak_text(ai_response, voice)
+        audio_bytes = live_chat.speak_text(ai_response, voice)
         
         response_data = {
             "success": True,
@@ -965,8 +965,8 @@ def live_chat_endpoint():
                 f.write(audio_bytes)
             
             response_data["audio_url"] = f"/audio/{audio_filename}"
-        elif error:
-            response_data["error"] = error
+        else:
+            response_data["error"] = "Failed to generate audio"
         
         return jsonify(response_data)
         

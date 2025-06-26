@@ -349,11 +349,37 @@ class OpenVoiceFallback:
                 communicate = edge_tts.Communicate(text, voice)
                 await communicate.save(output_path)
             
-            # Run async synthesis
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(generate_speech())
-            loop.close()
+            # Run async synthesis safely
+            try:
+                # Try to use existing event loop
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If loop is running, use run_in_executor
+                    import concurrent.futures
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        future = executor.submit(asyncio.run, generate_speech())
+                        future.result()
+                else:
+                    loop.run_until_complete(generate_speech())
+            except RuntimeError:
+                # Create new event loop in a new thread
+                import threading
+                result = [None]
+                exception = [None]
+                
+                def run_synthesis():
+                    try:
+                        asyncio.run(generate_speech())
+                        result[0] = True
+                    except Exception as e:
+                        exception[0] = e
+                
+                thread = threading.Thread(target=run_synthesis)
+                thread.start()
+                thread.join()
+                
+                if exception[0]:
+                    raise exception[0]
             
             return output_path
             
@@ -365,29 +391,68 @@ class OpenVoiceFallback:
         return self.synthesize_speech(text, 'default', **kwargs)
 
 
+# Import ultra-enhanced TTS
+try:
+    from ultra_enhanced_tts import create_ultra_enhanced_tts
+    ULTRA_ENHANCED_AVAILABLE = True
+    logger.info("🎭 Ultra-Enhanced TTS available")
+except ImportError as e:
+    ULTRA_ENHANCED_AVAILABLE = False
+    logger.warning(f"Ultra-Enhanced TTS not available: {e}")
+
+# Import real Orpheus-TTS integration
+try:
+    from orpheus_tts_real import create_orpheus_tts as create_real_orpheus_tts
+    REAL_ORPHEUS_AVAILABLE = True
+    logger.info("🎭 Real Orpheus-TTS integration available")
+except ImportError as e:
+    REAL_ORPHEUS_AVAILABLE = False
+    logger.warning(f"Real Orpheus-TTS not available: {e}")
+
 # Factory function to create appropriate TTS instance
 def create_orpheus_tts(prefer_openvoice: bool = True) -> Any:
     """
-    Create OpenVoice or fallback TTS instance
+    Create the best available TTS instance
+    Priority: Real Orpheus-TTS > Ultra-Enhanced Edge TTS > OpenVoice > Basic Edge TTS
     
     Args:
-        prefer_openvoice: Try to use real OpenVoice first
+        prefer_openvoice: Try to use advanced TTS first
         
     Returns:
-        TTS instance (OpenVoice or fallback)
+        TTS instance (best available option)
     """
+    
+    # First try Real Orpheus-TTS (ultra-realistic)
+    if REAL_ORPHEUS_AVAILABLE:
+        try:
+            tts = create_real_orpheus_tts()
+            logger.info("🎭 Using Real Orpheus-TTS (Ultra-Realistic Human-Like)")
+            return tts
+        except Exception as e:
+            logger.error(f"Real Orpheus-TTS failed: {e}")
+    
+    # Try Ultra-Enhanced Edge TTS (maximum quality)
+    if ULTRA_ENHANCED_AVAILABLE:
+        try:
+            tts = create_ultra_enhanced_tts()
+            logger.info("🎭 Using Ultra-Enhanced Edge TTS (Maximum Quality)")
+            return tts
+        except Exception as e:
+            logger.error(f"Ultra-Enhanced TTS failed: {e}")
+    
+    # Fallback to OpenVoice
     if prefer_openvoice:
         try:
             tts = OpenVoiceOrpheusTTS()
             if tts.load_models():
-                logger.info("Using real OpenVoice implementation")
+                logger.info("Using OpenVoice implementation")
                 return tts
             else:
                 logger.warning("OpenVoice models not available, using fallback")
         except Exception as e:
             logger.error(f"OpenVoice initialization failed: {e}")
     
-    logger.info("Using Edge TTS fallback implementation")
+    logger.info("Using basic Edge TTS fallback implementation")
     return OpenVoiceFallback()
 
 
