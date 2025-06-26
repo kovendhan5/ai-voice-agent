@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎤 Orpheus TTS Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.1em;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status.connected {
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid #2ecc71;
+        }
+
+        .status.disconnected {
+            background: rgba(231, 76, 60, 0.3);
+            border: 1px solid #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], select {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 1em;
+        }
+
+        select {
+            min-width: 120px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .examples {
+            margin-top: 30px;
+        }
+
+        .example {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .example:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .example strong {
+            color: #f39c12;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .audio-player {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 Orpheus TTS Demo</h1>
+            <p>Lightweight text-to-speech API demonstration</p>
+        </div>
+
+        <div id="status" class="status disconnected">
+            🔴 Checking connection...
+        </div>
+
+        <div class="form-group">
+            <label for="text">Text to Speak:</label>
+            <div class="input-group">
+                <input type="text" id="text" placeholder="Enter text to convert to speech..." maxlength="1000">
+                <select id="voice">
+                    <option value="tara">Tara (Female)</option>
+                    <option value="sarah">Sarah (Female)</option>
+                    <option value="alex">Alex (Male)</option>
+                </select>
+            </div>
+            <button id="speakBtn" class="button" onclick="generateSpeech()">
+                🗣️ Generate Speech
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Generating speech...</p>
+        </div>
+
+        <div id="audioPlayer" class="audio-player" style="display: none;">
+            <h3>🔊 Generated Speech:</h3>
+            <audio id="audio" controls></audio>
+            <br><br>
+            <button class="button" onclick="downloadAudio()">📥 Download Audio</button>
+        </div>
+
+        <div class="examples">
+            <h3>📝 Example Texts:</h3>
+            <div class="example" onclick="setExample('Hello world! This is a test of the Orpheus TTS system.')">
+                <strong>Basic:</strong> Hello world! This is a test of the Orpheus TTS system.
+            </div>
+            <div class="example" onclick="setExample('tara: Welcome to the Orpheus text-to-speech demonstration. I can convert any text into natural sounding speech.')">
+                <strong>With Voice Prefix:</strong> tara: Welcome to the Orpheus text-to-speech demonstration.
+            </div>
+            <div class="example" onclick="setExample('The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet.')">
+                <strong>Pangram:</strong> The quick brown fox jumps over the lazy dog.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAudioBlob = null;
+
+        // Check server status
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:8080/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('status').innerHTML = '🟢 Server Connected - ' + data.service;
+                    document.getElementById('status').className = 'status connected';
+                    document.getElementById('speakBtn').disabled = false;
+                } else {
+                    throw new Error('Server responded with error');
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = '🔴 Server Disconnected - Start the API server';
+                document.getElementById('status').className = 'status disconnected';
+                document.getElementById('speakBtn').disabled = true;
+            }
+        }
+
+        // Generate speech
+        async function generateSpeech() {
+            const text = document.getElementById('text').value.trim();
+            const voice = document.getElementById('voice').value;
+
+            if (!text) {
+                alert('Please enter some text to convert to speech.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('audioPlayer').style.display = 'none';
+            document.getElementById('speakBtn').disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:8080/speak', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: voice
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to generate speech');
+                }
+
+                // Get audio blob
+                currentAudioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(currentAudioBlob);
+
+                // Show audio player
+                const audioElement = document.getElementById('audio');
+                audioElement.src = audioUrl;
+                document.getElementById('audioPlayer').style.display = 'block';
+
+                // Auto-play the audio
+                audioElement.play().catch(e => {
+                    console.log('Auto-play prevented by browser policy');
+                });
+
+            } catch (error) {
+                alert('Error generating speech: ' + error.message);
+            } finally {
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('speakBtn').disabled = false;
+            }
+        }
+
+        // Download audio
+        function downloadAudio() {
+            if (currentAudioBlob) {
+                const url = URL.createObjectURL(currentAudioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `speech_${document.getElementById('voice').value}_${new Date().getTime()}.wav`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Set example text
+        function setExample(text) {
+            document.getElementById('text').value = text;
+        }
+
+        // Enter key support
+        document.getElementById('text').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateSpeech();
+            }
+        });
+
+        // Check server status on load and every 5 seconds
+        checkServerStatus();
+        setInterval(checkServerStatus, 5000);
+    </script>
+</body>
+</html>

@@ -30,4 +30,4 @@ USER app
 EXPOSE 8080
 
 # Use gunicorn for production deployment
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "120", "--preload", "ai_voice_assistant:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "120", "--preload", "app_demo:app"]
