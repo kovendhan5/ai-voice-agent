@@ -1,0 +1,22 @@
+# Core Flask Dependencies
+flask==3.0.0
+flask-cors==4.0.0
+requests==2.31.0
+
+# Core ML Dependencies
+numpy==1.24.3
+torch==2.0.1
+torchaudio==2.0.2
+
+# Orpheus TTS Core Dependencies (minimal set)
+orpheus-speech
+# snac  # Commented out if causing issues
+
+# Audio Processing (optional - fallback if pyaudio fails)
+# pyaudio==0.2.11  # Commented out due to Windows build issues
+
+# Text Processing
+# transformers  # Optional - disabled to avoid DLL conflicts
+
+# Deployment
+gunicorn==21.2.0
