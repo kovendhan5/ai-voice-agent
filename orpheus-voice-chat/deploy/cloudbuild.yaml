@@ -1,0 +1,58 @@
+# Google Cloud Build configuration for Orpheus Voice Chat
+steps:
+  # Copy files to src directory for build context
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args: 
+    - '-c'
+    - |
+      mkdir -p deploy/src
+      cp src/app_live_orpheus.py deploy/src/
+      cp src/requirements.txt deploy/
+  
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/orpheus-voice-chat:$BUILD_ID', '.']
+    dir: 'deploy'
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/orpheus-voice-chat:$BUILD_ID']
+  
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+    - 'run'
+    - 'deploy'
+    - 'orpheus-voice-chat'
+    - '--image'
+    - 'gcr.io/$PROJECT_ID/orpheus-voice-chat:$BUILD_ID'
+    - '--region'
+    - 'us-central1'
+    - '--platform'
+    - 'managed'
+    - '--allow-unauthenticated'
+    - '--memory'
+    - '2Gi'
+    - '--cpu'
+    - '2'
+    - '--concurrency'
+    - '80'
+    - '--max-instances'
+    - '10'
+    - '--min-instances'
+    - '0'
+    - '--port'
+    - '5000'
+    - '--set-env-vars'
+    - 'PYTHONUNBUFFERED=1'
+    - '--timeout'
+    - '300'
+
+images:
+  - 'gcr.io/$PROJECT_ID/orpheus-voice-chat:$BUILD_ID'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'

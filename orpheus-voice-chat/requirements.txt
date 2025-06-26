@@ -1,22 +1,49 @@
+# Cloud-Optimized Requirements for Orpheus Voice Chat
+# Real OpenVoice/Orpheus TTS with emotional synthesis
+
 # Core Flask Dependencies
 flask==3.0.0
 flask-cors==4.0.0
 requests==2.31.0
+gunicorn==21.2.0
 
-# Core ML Dependencies
-numpy==1.24.3
-torch==2.0.1
-torchaudio==2.0.2
+# Google AI
+google-generativeai==0.3.2
 
-# Orpheus TTS Core Dependencies (minimal set)
-orpheus-speech
-# snac  # Commented out if causing issues
+# OpenVoice/Orpheus TTS Dependencies
+torch>=1.13.0
+torchaudio>=0.13.0
+numpy>=1.21.0
+librosa>=0.9.0
+scipy>=1.9.0
+matplotlib>=3.5.0
+Pillow>=9.0.0
+inflect>=6.0.0
+phonemizer>=3.2.0
+Unidecode>=1.3.0
+cn2an>=0.5.0
+pypinyin>=0.47.0
+jieba>=0.42.1
+langid-py>=1.1.6
+gradio>=3.0.0
 
-# Audio Processing (optional - fallback if pyaudio fails)
-# pyaudio==0.2.11  # Commented out due to Windows build issues
+# MeloTTS for multi-lingual base speakers
+git+https://github.com/myshell-ai/MeloTTS.git
 
-# Text Processing
-# transformers  # Optional - disabled to avoid DLL conflicts
+# Audio Processing (Cloud-Compatible + OpenVoice)
+edge-tts==6.1.9
+pyttsx3==2.90
+soundfile==0.12.1
+audioread>=3.0.0
+resampy>=0.4.0
+
+# Speech Recognition (Browser-based primary, server fallback)
+SpeechRecognition==3.10.0
+
+# Utilities
+python-dateutil==2.8.2
+pathlib2>=2.3.0
+typing-extensions>=4.0.0
 
 # Deployment
 gunicorn==21.2.0

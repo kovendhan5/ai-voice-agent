@@ -25,16 +25,42 @@ class SimpleMockTTS:
         print("🎭 Simple Mock TTS initialized (always works)")
     
     def generate_speech(self, text, voice="tara", **kwargs):
-        """Generate SILENT mock audio - NO WEIRD NOISE"""
-        print(f"🎭 Generating SILENT audio for: '{text[:50]}...' with voice '{voice}'")
-        print("⚠️ MOCK MODE: Generating pure silence (no weird noise)")
+        """Generate clean demo beeps - NO WEIRD NOISE"""
+        print(f"🎭 Generating CLEAN BEEP for: '{text[:50]}...' with voice '{voice}'")
+        print("🔊 CLEAN MODE: Generating simple beep sound (no noise)")
         
-        # Generate completely SILENT audio - NO NOISE
-        sample_rate = 24000
-        duration = max(1.0, len(text) * 0.05)  # 0.05 seconds per character
+        # Generate very simple, clean beep sound
+        sample_rate = 22050  # Standard sample rate
+        duration = 0.5  # Short, simple beep
         
-        # Create pure SILENCE - no sine wave, no noise
-        audio_data = np.zeros(int(sample_rate * duration), dtype=np.float32)
+        # Create simple beep pattern - very basic to avoid noise
+        t = np.linspace(0, duration, int(sample_rate * duration), False)
+        
+        # Voice-specific simple tones (lower frequencies to avoid harsh noise)
+        voice_tones = {
+            "tara": 440,    # A4 
+            "jess": 523,    # C5  
+            "mia": 392,     # G4 
+            "leah": 494,    # B4 
+            "zoe": 587,     # D5 
+            "zac": 330,     # E4 
+            "leo": 294,     # D4  
+            "dan": 262      # C4 
+        }
+        
+        freq = voice_tones.get(voice, 440)
+        
+        # Generate clean sine wave
+        audio_data = 0.3 * np.sin(2 * np.pi * freq * t)
+        
+        # Apply gentle fade to prevent clicks
+        fade_len = int(0.01 * sample_rate)  # 10ms fade
+        if len(audio_data) > 2 * fade_len:
+            audio_data[:fade_len] *= np.linspace(0, 1, fade_len)
+            audio_data[-fade_len:] *= np.linspace(1, 0, fade_len)
+        
+        # Ensure clean conversion to int16
+        audio_data = np.clip(audio_data, -1.0, 1.0)  # Clip to prevent distortion
         
         # Convert to 16-bit integers
         audio_int16 = (audio_data * 32767).astype(np.int16)
@@ -146,13 +172,14 @@ def index():
     <body>
         <div class="container">
             <h1>🎭 Orpheus Voice Chat</h1>
-            <h2>Test Mode - Mock Audio</h2>
+            <h2>Demo Mode - Audible Test Tones</h2>
             
             <div class="status">
                 <h3>✅ Server Status: Running</h3>
-                <p>🎭 TTS Engine: Mock (Test Tones)</p>
+                <p>🎭 TTS Engine: Demo (Audible Tones)</p>
                 <p>🌐 API: Fully Functional</p>
-                <p>🎵 Audio: Simple test tones instead of speech</p>
+                <p>🔊 Audio: Pleasant test tones you can actually hear!</p>
+                <p>🎵 Each voice has its own unique frequency</p>
             </div>
             
             <h3>🎤 Test Speech Synthesis</h3>
@@ -165,7 +192,7 @@ def index():
                 <option value="leo">Leo - Authoritative</option>
             </select>
             <br>
-            <button onclick="testSynthesis()">🎵 Generate Test Audio</button>
+            <button onclick="testSynthesis()">🔊 Play Demo Audio</button>
             
             <h3>💬 Test Chat</h3>
             <input type="text" id="chatInput" placeholder="Say something..." value="Hello, how are you?">
