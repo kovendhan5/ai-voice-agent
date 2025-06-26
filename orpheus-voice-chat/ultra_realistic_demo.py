@@ -56,10 +56,10 @@ async def demo_enhanced_speech():
                 start_time = time.time()
                 
                 # Generate ultra-enhanced speech
-                result = await tts.speak_text(
+                result = tts.synthesize_speech(
                     text=conv['text'],
-                    voice=conv['voice'],
-                    emotion=conv['emotion']
+                    emotion=conv['emotion'],
+                    voice=conv['voice']
                 )
                 
                 end_time = time.time()
