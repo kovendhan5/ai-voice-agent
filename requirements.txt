@@ -1,0 +1,13 @@
+flask==3.0.0
+gunicorn==21.2.0
+torch
+torchaudio
+transformers
+numpy
+scipy
+requests
+
+# Voice Interface Dependencies
+SpeechRecognition==3.10.0
+pygame==2.5.2
+pyaudio==0.2.11
