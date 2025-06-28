@@ -52,6 +52,12 @@ logs/
 .cache/
 models/
 
+# Large model checkpoints (too big for GitHub)
+checkpoints/
+*.pth
+*.bin
+*.safetensors
+
 # Deployment
 .dockerignore
 docker-compose.override.yml
