@@ -150,3 +150,10 @@ Thumbs.db
 models/
 cache/
 .cache/
+
+# Large model files and original source directories
+orpheus-original/
+checkpoints/
+*.pth
+*.bin
+*.safetensors
