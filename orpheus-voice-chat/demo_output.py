@@ -31,21 +31,12 @@ import speech_recognition as sr
 async def test_voice_quality():
     print("✅ Testing voice synthesis quality...")
     
-    # Test high-quality Edge TTS
+    # Test fixed Edge TTS (simplified for reliability)
     text = "Hello! This is a test of the improved voice quality system."
-    voice = "en-US-JennyMultilingualNeural"
+    voice = "en-US-JennyNeural"  # Use reliable voice
     
-    ssml = f"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
-        <voice name="{voice}">
-            <prosody rate="+0%" pitch="+0Hz">
-                <express-as style="cheerful" styledegree="2">
-                    {text}
-                </express-as>
-            </prosody>
-        </voice>
-    </speak>"""
-    
-    communicate = edge_tts.Communicate(ssml, voice)
+    # Use direct text instead of complex SSML
+    communicate = edge_tts.Communicate(text, voice)
     
     with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
         temp_path = temp_file.name
@@ -154,7 +145,7 @@ try:
     print("✅ Speech recognizer initialized")
     
     genai.configure(api_key="AIzaSyBu5izidIfzknhhMCzZB6yn1GKnzwZoUIQ")
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("gemini-1.5-flash")  # Updated model
     print("✅ AI model configured")
     
     print("🎉 VOICE CHAT SYSTEM READY FOR USE!")
