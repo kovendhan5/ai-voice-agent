@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Orpheus Voice Chat - Real AI Conversations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Voice Chat Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            background: rgba(103, 126, 234, 0.6);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.ai {
+            background: rgba(118, 75, 162, 0.6);
+            margin-right: auto;
+        }
+
+        .message-header {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .message-content {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .voice-selector {
+            margin-bottom: 10px;
+        }
+
+        .voice-selector select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 50px;
+        }
+
+        .send-btn, .voice-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .send-btn:hover, .voice-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .voice-btn {
+            margin-left: 10px;
+        }
+
+        .voice-btn.recording {
+            background: rgba(244, 67, 54, 0.7);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .status-indicator {
+            padding: 10px 20px;
+            background: rgba(76, 175, 80, 0.3);
+            border-radius: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .audio-controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Voice Gallery Styles */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .voice-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .voice-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+        }
+
+        .voice-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .voice-card p {
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .test-voice-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .test-voice-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Synthesis Tab Styles */
+        .synthesis-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 1rem;
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .emotion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .emotion-tag {
+            padding: 5px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .emotion-tag:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .synthesize-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(103, 126, 234, 0.8);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .synthesize-btn:hover {
+            background: rgba(103, 126, 234, 1);
+            transform: translateY(-2px);
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .voice-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Orpheus Voice Chat</h1>
+            <p>Real AI conversations with human-like speech, emotions, and laughter</p>
+        </div>
+
+        <div class="status-indicator" id="statusIndicator">
+            🔄 Connecting to Orpheus TTS...
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('chat')">💬 Voice Chat</div>
+            <div class="tab" onclick="switchTab('synthesis')">🎙️ Voice Synthesis</div>
+            <div class="tab" onclick="switchTab('gallery')">🎭 Voice Gallery</div>
+            <div class="tab" onclick="switchTab('about')">ℹ️ About</div>
+        </div>
+
+        <!-- Voice Chat Tab -->
+        <div id="chat" class="tab-content active">
+            <div class="chat-container">
+                <div class="messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="message-header">🎭 Orpheus AI</div>
+                        <div class="message-content">
+                            Hello! I'm your Orpheus AI companion. I can have real conversations with you using human-like speech with emotions and laughter! 
+                            <br><br>Type a message or click the voice button to start chatting! 🎤
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <div class="input-group">
+                        <div class="voice-selector">
+                            <select id="chatVoice">
+                                <option value="tara">🎭 Tara - Natural & Conversational</option>
+                                <option value="jess">✨ Jess - Friendly & Bubbly</option>
+                                <option value="zac">🎯 Zac - Clear & Confident</option>
+                                <option value="leo">🎪 Leo - Deep & Authoritative</option>
+                                <option value="mia">🌟 Mia - Soft & Caring</option>
+                                <option value="leah">🎨 Leah - Dynamic & Expressive</option>
+                                <option value="zoe">🎵 Zoe - Young & Energetic</option>
+                                <option value="dan">🎬 Dan - Mature & Professional</option>
+                            </select>
+                        </div>
+                        <textarea id="messageInput" class="message-input" placeholder="Type your message here..." rows="2"></textarea>
+                    </div>
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                    <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">🎤 Voice</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="chatLoading">
+                🎭 Orpheus is thinking and preparing to speak...
+            </div>
+        </div>
+
+        <!-- Voice Synthesis Tab -->
+        <div id="synthesis" class="tab-content">
+            <div class="synthesis-form">
+                <div class="form-group">
+                    <label for="synthesisText">Text to Synthesize:</label>
+                    <textarea id="synthesisText" placeholder="Enter text here... Try adding emotions like <laugh>, <chuckle>, <sigh>">Hello! <chuckle> This is a test of the amazing Orpheus TTS system. <laugh> It can express emotions and speak like a real person!</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="synthesisVoice">Voice:</label>
+                    <select id="synthesisVoice">
+                        <option value="tara">🎭 Tara - Natural & Conversational</option>
+                        <option value="jess">✨ Jess - Friendly & Bubbly</option>
+                        <option value="zac">🎯 Zac - Clear & Confident</option>
+                        <option value="leo">🎪 Leo - Deep & Authoritative</option>
+                        <option value="mia">🌟 Mia - Soft & Caring</option>
+                        <option value="leah">🎨 Leah - Dynamic & Expressive</option>
+                        <option value="zoe">🎵 Zoe - Young & Energetic</option>
+                        <option value="dan">🎬 Dan - Mature & Professional</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quick Emotion Tags (click to add):</label>
+                    <div class="emotion-tags">
+                        <span class="emotion-tag" onclick="addEmotionTag('&lt;laugh&gt;')">&lt;laugh&gt;</span>
+                        <span class="emotion-tag" onclick="addEmotionTag('&lt;chuckle&gt;')">&lt;chuckle&gt;</span>
+                        <span class="emotion-tag" onclick="addEmotionTag('&lt;sigh&gt;')">&lt;sigh&gt;</span>
+                        <span class="emotion-tag" onclick="addEmotionTag('&lt;gasp&gt;')">&lt;gasp&gt;</span>
+                        <span class="emotion-tag" onclick="addEmotionTag('&lt;cough&gt;')">&lt;cough&gt;</span>
+                        <span class="emotion-tag" onclick="addEmotionTag('&lt;yawn&gt;')">&lt;yawn&gt;</span>
+                    </div>
+                </div>
+                
+                <button class="synthesize-btn" onclick="synthesizeSpeech()">🎙️ Generate Speech</button>
+                
+                <div id="synthesisResult"></div>
+            </div>
+        </div>
+
+        <!-- Voice Gallery Tab -->
+        <div id="gallery" class="tab-content">
+            <div class="voice-grid" id="voiceGrid">
+                <!-- Voice cards will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about" class="tab-content">
+            <h2>🎭 About Orpheus Voice Chat</h2>
+            <p style="margin-bottom: 20px;">This is an advanced voice AI system powered by the authentic Orpheus TTS model, featuring:</p>
+            
+            <ul style="margin-bottom: 30px; padding-left: 20px;">
+                <li><strong>🎭 Real Human-like Speech:</strong> Authentic neural voice synthesis</li>
+                <li><strong>😄 Natural Emotions:</strong> Laughter, chuckles, sighs, and expressions</li>
+                <li><strong>🎪 8 Voice Personalities:</strong> Each with unique traits and styles</li>
+                <li><strong>🤖 Smart Conversations:</strong> Context-aware AI responses</li>
+                <li><strong>🌐 Real-time Processing:</strong> Fast, responsive voice generation</li>
+                <li><strong>📱 Mobile-Friendly:</strong> Works on all devices</li>
+            </ul>
+            
+            <h3>🎯 How to Use:</h3>
+            <ol style="margin-bottom: 30px; padding-left: 20px;">
+                <li><strong>Voice Chat:</strong> Type messages or use voice input for AI conversations</li>
+                <li><strong>Voice Synthesis:</strong> Enter custom text and generate speech</li>
+                <li><strong>Voice Gallery:</strong> Test all 8 voice personalities</li>
+                <li><strong>Emotion Tags:</strong> Add &lt;laugh&gt;, &lt;chuckle&gt;, etc. for emotions</li>
+            </ol>
+            
+            <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                <h4>🚀 Powered by Authentic Orpheus TTS</h4>
+                <p>Real neural speech synthesis with human-like emotions and natural conversation flow!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAudio = null;
+        let isRecording = false;
+
+        // Check server status on load
+        window.addEventListener('load', checkServerStatus);
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                const statusEl = document.getElementById('statusIndicator');
+                if (data.status === 'running') {
+                    statusEl.innerHTML = `✅ ${data.model} - ${data.voices} voices available`;
+                    statusEl.style.background = 'rgba(76, 175, 80, 0.3)';
+                } else {
+                    statusEl.innerHTML = '❌ Server connection failed';
+                    statusEl.style.background = 'rgba(244, 67, 54, 0.3)';
+                }
+                
+                // Load voice gallery
+                loadVoiceGallery();
+                
+            } catch (error) {
+                document.getElementById('statusIndicator').innerHTML = '❌ Server offline';
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            const voice = document.getElementById('chatVoice').value;
+            const messagesEl = document.getElementById('chatMessages');
+            const loadingEl = document.getElementById('chatLoading');
+
+            // Add user message
+            addMessage('user', 'You', message);
+            messageInput.value = '';
+
+            // Show loading
+            loadingEl.classList.add('show');
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, voice })
+                });
+
+                const data = await response.json();
+                loadingEl.classList.remove('show');
+
+                if (response.ok) {
+                    // Add AI response
+                    addMessage('ai', `🎭 ${voice.charAt(0).toUpperCase() + voice.slice(1)}`, data.response);
+                    
+                    // Play audio response
+                    if (data.audio_url) {
+                        playAudioResponse(data.audio_url);
+                    }
+                } else {
+                    addMessage('ai', '❌ Error', `Sorry, I encountered an error: ${data.error}`);
+                }
+            } catch (error) {
+                loadingEl.classList.remove('show');
+                addMessage('ai', '❌ Error', 'Sorry, I could not connect to the server.');
+            }
+        }
+
+        function addMessage(type, sender, content) {
+            const messagesEl = document.getElementById('chatMessages');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.innerHTML = `
+                <div class="message-header">${sender}</div>
+                <div class="message-content">${content}</div>
+            `;
+            messagesEl.appendChild(messageEl);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function playAudioResponse(audioUrl) {
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+            
+            currentAudio = new Audio(audioUrl);
+            currentAudio.play().catch(console.error);
+        }
+
+        async function synthesizeSpeech() {
+            const text = document.getElementById('synthesisText').value.trim();
+            const voice = document.getElementById('synthesisVoice').value;
+            const resultEl = document.getElementById('synthesisResult');
+
+            if (!text) {
+                resultEl.innerHTML = '<div class="error">Please enter text to synthesize</div>';
+                return;
+            }
+
+            resultEl.innerHTML = '<div class="loading show">🎭 Generating speech...</div>';
+
+            try {
+                const response = await fetch('/synthesize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, voice, add_emotions: true })
+                });
+
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    resultEl.innerHTML = `
+                        <div class="success">
+                            ✅ Speech generated successfully!
+                            <div class="audio-controls">
+                                <audio controls class="audio-player" src="${audioUrl}"></audio>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const errorData = await response.json();
+                    resultEl.innerHTML = `<div class="error">❌ Error: ${errorData.error}</div>`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = '<div class="error">❌ Connection error. Please try again.</div>';
+            }
+        }
+
+        function addEmotionTag(tag) {
+            const textArea = document.getElementById('synthesisText');
+            const cursorPos = textArea.selectionStart;
+            const textBefore = textArea.value.substring(0, cursorPos);
+            const textAfter = textArea.value.substring(cursorPos);
+            
+            textArea.value = textBefore + ' ' + tag.replace(/&lt;/g, '<').replace(/&gt;/g, '>') + ' ' + textAfter;
+            textArea.focus();
+            textArea.setSelectionRange(cursorPos + tag.length + 2, cursorPos + tag.length + 2);
+        }
+
+        async function loadVoiceGallery() {
+            try {
+                const response = await fetch('/voices');
+                const data = await response.json();
+                const gridEl = document.getElementById('voiceGrid');
+
+                gridEl.innerHTML = Object.entries(data.voices).map(([voice, description]) => `
+                    <div class="voice-card">
+                        <h3>${voice.charAt(0).toUpperCase() + voice.slice(1)}</h3>
+                        <p>${description}</p>
+                        <button class="test-voice-btn" onclick="testVoice('${voice}')">
+                            🎤 Test Voice
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('voiceGrid').innerHTML = '<p>Could not load voice gallery</p>';
+            }
+        }
+
+        async function testVoice(voice) {
+            try {
+                const response = await fetch(`/test?voice=${voice}`);
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    playAudioResponse(audioUrl);
+                }
+            } catch (error) {
+                console.error('Voice test failed:', error);
+            }
+        }
+
+        function toggleVoiceRecording() {
+            // Placeholder for voice recording functionality
+            alert('Voice recording feature coming soon! For now, please type your message.');
+        }
+
+        // Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
