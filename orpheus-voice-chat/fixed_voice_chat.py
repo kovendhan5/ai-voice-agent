@@ -18,12 +18,22 @@ import numpy as np
 import time
 import re
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not installed, environment variables should be set manually
+    pass
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure Gemini AI
-GEMINI_API_KEY = "AIzaSyBu5izidIfzknhhMCzZB6yn1GKnzwZoUIQ"
+GEMINI_API_KEY = os.getenv('GOOGLE_API_KEY')
+if not GEMINI_API_KEY:
+    raise ValueError("GOOGLE_API_KEY environment variable is required. Please set it in your .env file")
 genai.configure(api_key=GEMINI_API_KEY)
 
 class FixedVoiceChat:

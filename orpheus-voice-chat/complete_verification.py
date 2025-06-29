@@ -19,7 +19,11 @@ async def verify_all_systems():
     print("\n🤖 Testing Gemini AI (Fixed Model)...")
     try:
         import google.generativeai as genai
-        genai.configure(api_key="AIzaSyBu5izidIfzknhhMCzZB6yn1GKnzwZoUIQ")
+        api_key = os.getenv('GOOGLE_API_KEY')
+        if not api_key:
+            print("❌ GOOGLE_API_KEY environment variable not set")
+            return False
+        genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-1.5-flash')
         
         response = model.generate_content("Say hello in a friendly way for voice chat (keep it short)")

@@ -25,9 +25,10 @@ venv/
 env/
 ENV/
 
-# Environment Variables
+# Environment Variables - NEVER COMMIT API KEYS!
 .env
-.env.local
+.env.*
+!.env.example
 
 # IDE
 .vscode/
@@ -39,25 +40,47 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Audio files (temporary)
+# Audio files (temporary and generated)
 *.wav
 *.mp3
+*.ogg
+*.flac
 temp_audio/
+output_*.wav
+test_output.*
+live_audio_*
+orpheus_audio_*
 
 # Logs
 *.log
 logs/
+debug.log
 
-# Model cache
+# Model cache and temporary files
 .cache/
 models/
+temp/
+tmp/
 
 # Large model checkpoints (too big for GitHub)
 checkpoints/
 *.pth
 *.bin
 *.safetensors
+*.ckpt
+
+# Auto-generated files and directories
+auto_generated/
+generated_*
+*.tmp
+*.temp
 
 # Deployment
 .dockerignore
 docker-compose.override.yml
+
+# API Keys and secrets (additional protection)
+config.json
+secrets.json
+api_keys.txt
+*.key
