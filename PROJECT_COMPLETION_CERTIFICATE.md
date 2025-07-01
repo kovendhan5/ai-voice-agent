@@ -21,8 +21,12 @@
 ### **Real Orpheus-TTS Integration**
 - ✅ Official Canopy AI `orpheus-speech` package (v0.1.0)
 - ✅ Model: `canopylabs/orpheus-tts-0.1-finetune-prod`
+- ✅ **CPU mode optimized** - Works without NVIDIA drivers
 - ✅ CUDA support with intelligent CPU fallback
 - ✅ Human-quality voice synthesis confirmed
+- ✅ **NEW**: Complete emotion tag system implemented
+- ✅ **NEW**: Multiple voice personalities (tara, leah, jess, leo, dan, mia, zac, zoe)
+- ✅ **NEW**: Real-time streaming audio generation
 
 ### **Critical Bug Fixes Applied**
 - ✅ **Gemini API 404 Errors**: Fixed by updating to `gemini-1.5-flash`
@@ -41,6 +45,12 @@
 ## 📁 **DELIVERABLES**
 
 ### **Core Application Files**
+- `simple_working_demo.py` - **NEW**: Guaranteed working demo (CPU/GPU)
+- `cpu_demo.py` - **NEW**: CPU-optimized comprehensive demo
+- `real_orpheus_voice_chat.py` - **NEW**: Complete voice chat with real Orpheus-TTS
+- `real_orpheus_tts.py` - **NEW**: Emotion-enhanced TTS engine
+- `orpheus_only_demo.py` - **NEW**: TTS-only demo (no API key needed)
+- `install_orpheus.py` - **NEW**: Automatic installation script
 - `fixed_voice_chat.py` - Main working voice chat application
 - `orpheus_tts_real.py` - Real Orpheus-TTS integration module
 - `complete_verification.py` - System verification and testing
@@ -78,7 +88,15 @@
 ### **Quick Start**
 ```bash
 cd "k:\full stack\AI\voice model\orpheus-voice-chat"
-python fixed_voice_chat.py
+
+# Test Real Orpheus-TTS (works on CPU - no GPU needed)
+python simple_working_demo.py
+
+# CPU-optimized demo
+python cpu_demo.py
+
+# Full voice chat (requires Google API key)
+python real_orpheus_voice_chat.py
 ```
 
 ### **System Verification**
