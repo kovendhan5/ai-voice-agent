@@ -84,3 +84,26 @@ config.json
 secrets.json
 api_keys.txt
 *.key
+
+# SECURITY: Files that might contain hardcoded tokens
+*_token.py
+*_key.py
+*_secret.py
+api_keys.py
+tokens.py
+secrets.py
+quick_test.py
+test_access.py
+accept_model_terms.py
+
+# SECURITY: Test files with hardcoded values
+test_tokens.py
+demo_with_keys.py
+quick_auth_test.py
+token_test.py
+
+# SECURITY: Backup files that might contain secrets
+*.bak
+*.backup
+backup_*
+*_backup.*
